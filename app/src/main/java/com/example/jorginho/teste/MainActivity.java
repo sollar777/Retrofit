@@ -32,10 +32,11 @@ public class MainActivity extends AppCompatActivity {
         jsonApiResponse = retrofit.create(JsonApiResponse.class);
 
         getPosts();
+        //getComments();
     }
 
     private void getPosts(){
-        Call<List<Post>> call = jsonApiResponse.getPost();
+        Call<List<Post>> call = jsonApiResponse.getPost(null,null,null);
 
         call.enqueue(new Callback<List<Post>>() {
             @Override
@@ -60,6 +61,38 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    public void getComments(){
+        Call<List<Comment>> call = jsonApiResponse.getComment(1);
+
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (!response.isSuccessful()){
+                    textViewResult.setText("code: " + response.code());
+                    return;
+                }
+
+                List<Comment> comments = response.body();
+
+                for (Comment comment : comments){
+                    String content = "";
+                    content += "Id: " + comment.getId() + "\n";
+                    content += "UserId: " + comment.getUserId() + "\n";
+                    content += "email : " + comment.getEmail() + "\n";
+                    content += "Text: " + comment.getText() + "\n\n";
+
+                    textViewResult.append(content);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
                 textViewResult.setText(t.getMessage());
             }
         });
